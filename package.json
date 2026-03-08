@@ -1,15 +1,11 @@
-==> Cloning from https://github.com/iavaro/siteweb_boutique_spacev
-==> Checking out commit f363750e8aa1e4e9b7392d0b9d69def7ee272830 in branch main
-==> Using Node.js version 22.22.0 (default)
-==> Docs on specifying a Node.js version: https://render.com/docs/node-version
-==> Running build command 'npm install'...
-npm error code ENOENT
-npm error syscall open
-npm error path /opt/render/project/src/package.json
-npm error errno -2
-npm error enoent Could not read package.json: Error: ENOENT: no such file or directory, open '/opt/render/project/src/package.json'
-npm error enoent This is related to npm not being able to find a file.
-npm error enoent
-npm error A complete log of this run can be found in: /opt/render/.cache/_logs/2026-03-08T19_04_50_552Z-debug-0.log
-==> Build failed 😞
-==> Common ways to troubleshoot your deploy: https://render.com/docs/troubleshooting-deploys
+{
+  "name": "spacev",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "cd backend && node src/index.js",
+    "build": "cd backend && npm install"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
