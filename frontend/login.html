@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - SpaceV</title>
+  <link rel="stylesheet" href="/public/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container navbar-container">
+      <a href="/" class="navbar-brand">
+        <div class="navbar-logo">🚀</div>
+        <span>SpaceV</span>
+      </a>
+      
+      <button class="navbar-toggle">☰</button>
+      
+      <div class="navbar-menu">
+        <ul class="navbar-links">
+          <li><a href="/" class="navbar-link">Home</a></li>
+          <li><a href="/store" class="navbar-link">Store</a></li>
+          <li><a href="/support" class="navbar-link">Support</a></li>
+        </ul>
+        
+        <div class="navbar-actions">
+          <div class="auth-buttons">
+            <a href="/login" class="btn btn-primary">Login</a>
+            <a href="/register" class="btn btn-ghost">Register</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Login Form -->
+  <section class="section" style="min-height: calc(100vh - 200px); display: flex; align-items: center;">
+    <div class="container">
+      <div style="max-width: 400px; margin: 0 auto;">
+        <div class="card">
+          <h2 class="text-center" style="margin-bottom: var(--spacing-xl);">Welcome Back</h2>
+          
+          <form id="login-form">
+            <div class="form-error" style="display: none; margin-bottom: var(--spacing-md);"></div>
+            
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-input" name="email" required placeholder="Enter your email">
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">Password</label>
+              <input type="password" class="form-input" name="password" required placeholder="Enter your password">
+            </div>
+            
+            <div class="flex justify-between items-center mb-lg">
+              <label class="form-check">
+                <input type="checkbox" name="remember">
+                <span>Remember me</span>
+              </label>
+              <a href="/forgot-password" class="text-muted" style="font-size: 0.875rem;">Forgot password?</a>
+            </div>
+            
+            <button type="submit" class="btn btn-primary w-full">Login</button>
+          </form>
+          
+          <div class="text-center mt-lg">
+            <p class="text-muted">Don't have an account? <a href="/register">Register</a></p>
+          </div>
+          
+          <div class="mt-lg">
+            <div class="flex items-center gap-md">
+              <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
+              <span class="text-muted">or</span>
+              <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
+            </div>
+            
+            <button class="btn btn-secondary w-full mt-lg" onclick="auth.loginWithDiscord()">
+              Continue with Discord
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>© 2024 SpaceV. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/public/scripts.js"></script>
+</body>
+</html>
+

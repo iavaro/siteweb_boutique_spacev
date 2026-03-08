@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaderboards - SpaceV RP</title>
+  <link rel="stylesheet" href="/public/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏆</text></svg>">
+  <style>
+    .leaderboard-card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-xl);
+      margin-bottom: var(--spacing-xl);
+    }
+    
+    .leaderboard-tabs {
+      display: flex;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-xl);
+      flex-wrap: wrap;
+    }
+    
+    .leaderboard-tab {
+      padding: var(--spacing-sm) var(--spacing-lg);
+      border-radius: var(--radius-md);
+      background: var(--bg-secondary);
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+    
+    .leaderboard-tab:hover {
+      background: var(--bg-tertiary);
+    }
+    
+    .leaderboard-tab.active {
+      background: var(--primary-color);
+      color: white;
+    }
+    
+    .leaderboard-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .leaderboard-table th,
+    .leaderboard-table td {
+      padding: var(--spacing-md);
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .leaderboard-table th {
+      font-weight: 600;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .leaderboard-table tr:hover {
+      background: var(--bg-secondary);
+    }
+    
+    .rank-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-weight: bold;
+    }
+    
+    .rank-1 { background: linear-gradient(135deg, #ffd700, #ffb700); color: #000; }
+    .rank-2 { background: linear-gradient(135deg, #c0c0c0, #a0a0a0); color: #000; }
+    .rank-3 { background: linear-gradient(135deg, #cd7f32, #b06020); color: #fff; }
+    .rank-other { background: var(--bg-tertiary); color: var(--text-secondary); }
+    
+    .player-cell {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+    }
+    
+    .player-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--bg-tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+    
+    .stat-value {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    .job-badge {
+      display: inline-block;
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border-radius: var(--radius-sm);
+      background: var(--bg-tertiary);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    
+    .auto-refresh {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .auto-refresh label {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      cursor: pointer;
+    }
+    
+    .loading-container {
+      display: flex;
+      justify-content: center;
+      padding: var(--spacing-xxl);
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container navbar-container">
+      <a href="/" class="navbar-brand">
+        <div class="navbar-logo">🚀</div>
+        <span>SpaceV</span>
+      </a>
+      
+      <button class="navbar-toggle">☰</button>
+      
+      <div class="navbar-menu">
+        <ul class="navbar-links">
+          <li><a href="/" class="navbar-link">Home</a></li>
+          <li><a href="/store" class="navbar-link">Store</a></li>
+          <li><a href="/leaderboards" class="navbar-link active">Leaderboards</a></li>
+        </ul>
+        
+        <div class="navbar-actions">
+          <div class="auth-buttons">
+            <a href="/login" class="btn btn-ghost">Login</a>
+            <a href="/register" class="btn btn-primary">Register</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <section class="section">
+    <div class="container">
+      <h1 style="margin-bottom: var(--spacing-xl);">🏆 Leaderboards</h1>
+      
+      <div class="leaderboard-card">
+        <div class="auto-refresh">
+          <label>
+            <input type="checkbox" id="autoRefresh" checked>
+            Auto-refresh (30s)
+          </label>
+        </div>
+        
+        <div class="leaderboard-tabs">
+          <button class="leaderboard-tab active" data-type="richest">💰 Richest</button>
+          <button class="leaderboard-tab" data-type="mostPlaytime">⏱️ Playtime</button>
+          <button class="leaderboard-tab" data-type="mostKills">💀 Kills</button>
+          <button class="leaderboard-tab" data-type="mostVehicles">🚗 Vehicles</button>
+          <button class="leaderboard-tab" data-type="mostHouses">🏠 Houses</button>
+          <button class="leaderboard-tab" data-type="bestRpScore">⭐ RP Score</button>
+        </div>
+        
+        <div id="leaderboard-content">
+          <div class="loading-container">
+            <div class="loading"><div class="spinner"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>© 2024 SpaceV. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/public/scripts.js"></script>
+  <script>
+    let currentType = 'richest';
+    let refreshInterval = null;
+    
+    // Tab switching
+    document.querySelectorAll('.leaderboard-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.leaderboard-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentType = tab.dataset.type;
+        loadLeaderboard(currentType);
+      });
+    });
+    
+    // Load leaderboard data
+    async function loadLeaderboard(type) {
+      const container = document.getElementById('leaderboard-content');
+      container.innerHTML = '<div class="loading-container"><div class="loading"><div class="spinner"></div></div></div>';
+      
+      try {
+        const data = await api.get(`/leaderboards/${type}?limit=20`);
+        const leaderboard = data.leaderboard;
+        
+        if (leaderboard.length === 0) {
+          container.innerHTML = '<p class="text-center" style="padding: var(--spacing-xl); color: var(--text-secondary);">No data available yet</p>';
+          return;
+        }
+        
+        let html = '<div class="table-container"><table class="leaderboard-table"><thead><tr>';
+        
+        // Headers based on type
+        html += '<th>Rank</th><th>Player</th>';
+        if (type === 'richest') {
+          html += '<th>Money</th><th>Bank</th>';
+        } else if (type === 'mostPlaytime') {
+          html += '<th>Playtime</th>';
+        } else if (type === 'mostKills') {
+          html += '<th>Kills</th><th>Deaths</th><th>K/D</th>';
+        } else if (type === 'mostVehicles') {
+          html += '<th>Vehicles</th>';
+        } else if (type === 'mostHouses') {
+          html += '<th>Houses</th>';
+        } else if (type === 'bestRpScore') {
+          html += '<th>RP Score</th>';
+        }
+        html += '<th>Job</th></tr></thead><tbody>';
+        
+        leaderboard.forEach((entry, index) => {
+          const rankClass = index < 3 ? `rank-${index + 1}` : 'rank-other';
+          const playerName = entry.playerName || 'Unknown';
+          
+          html += `<tr>
+            <td><span class="rank-badge ${rankClass}">${entry.rank}</span></td>
+            <td>
+              <div class="player-cell">
+                <div class="player-avatar">${entry.avatar ? `<img src="${entry.avatar}" alt="${playerName}">` : '🎮'}</div>
+                <a href="/players/${entry.playerId}" style="color: var(--text-primary); font-weight: 500;">${playerName}</a>
+              </div>
+            </td>`;
+          
+          if (type === 'richest') {
+            html += `<td class="stat-value">$${parseFloat(entry.money || 0).toLocaleString()}</td>`;
+            html += `<td class="stat-value">$${parseFloat(entry.bank || 0).toLocaleString()}</td>`;
+          } else if (type === 'mostPlaytime') {
+            html += `<td class="stat-value">${formatPlaytime(entry.playtime || 0)}</td>`;
+          } else if (type === 'mostKills') {
+            html += `<td class="stat-value">${entry.kills || 0}</td>`;
+            html += `<td class="stat-value">${entry.deaths || 0}</td>`;
+            html += `<td class="stat-value">${entry.kdRatio || 0}</td>`;
+          } else if (type === 'mostVehicles') {
+            html += `<td class="stat-value">${entry.vehicles || 0}</td>`;
+          } else if (type === 'mostHouses') {
+            html += `<td class="stat-value">${entry.houses || 0}</td>`;
+          } else if (type === 'bestRpScore') {
+            html += `<td class="stat-value">⭐ ${entry.rpScore || 1000}</td>`;
+          }
+          
+          html += `<td><span class="job-badge">${entry.jobLabel || 'Unemployed'}</span></td>`;
+          html += '</tr>';
+        });
+        
+        html += '</tbody></table></div>';
+        container.innerHTML = html;
+        
+      } catch (error) {
+        console.error('Failed to load leaderboard:', error);
+        container.innerHTML = '<p class="text-center" style="padding: var(--spacing-xl); color: var(--text-secondary);">Failed to load leaderboard</p>';
+      }
+    }
+    
+    // Format playtime
+    function formatPlaytime(minutes) {
+      if (!minutes) return '0h';
+      const days = Math.floor(minutes / 1440);
+      const hours = Math.floor((minutes % 1440) / 60);
+      const mins = minutes % 60;
+      if (days > 0) return `${days}d ${hours}h`;
+      if (hours > 0) return `${hours}h ${mins}m`;
+      return `${mins}m`;
+    }
+    
+    // Auto refresh toggle
+    document.getElementById('autoRefresh').addEventListener('change', (e) => {
+      if (e.target.checked) {
+        startAutoRefresh();
+      } else {
+        stopAutoRefresh();
+      }
+    });
+    
+    function startAutoRefresh() {
+      if (refreshInterval) clearInterval(refreshInterval);
+      refreshInterval = setInterval(() => {
+        loadLeaderboard(currentType);
+      }, 30000);
+    }
+    
+    function stopAutoRefresh() {
+      if (refreshInterval) {
+        clearInterval(refreshInterval);
+        refreshInterval = null;
+      }
+    }
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      loadLeaderboard('richest');
+      startAutoRefresh();
+    });
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Support - SpaceV</title>
+  <link rel="stylesheet" href="/public/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container navbar-container">
+      <a href="/" class="navbar-brand">
+        <div class="navbar-logo">🚀</div>
+        <span>SpaceV</span>
+      </a>
+      
+      <button class="navbar-toggle">☰</button>
+      
+      <div class="navbar-menu">
+        <ul class="navbar-links">
+          <li><a href="/" class="navbar-link">Home</a></li>
+          <li><a href="/store" class="navbar-link">Store</a></li>
+          <li><a href="/support" class="navbar-link active">Support</a></li>
+          <li><a href="/admin" class="navbar-link" style="color: var(--color-primary);">⚡ Admin</a></li>
+        </ul>
+        
+        <div class="navbar-actions">
+          <a href="/cart" class="btn btn-ghost btn-icon">🛒 <span class="cart-count" style="display: none;">0</span></a>
+          
+          <div class="auth-buttons">
+            <a href="/login" class="btn btn-ghost">Login</a>
+            <a href="/register" class="btn btn-primary">Register</a>
+          </div>
+          
+          <div class="user-menu" style="display: none;">
+            <a href="/dashboard" class="btn btn-secondary">
+              <span class="username">User</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Support Content -->
+  <section class="section">
+    <div class="container">
+      <h1 class="text-center" style="margin-bottom: var(--spacing-xl);">How Can We Help?</h1>
+      
+      <div class="grid grid-2" style="max-width: 900px; margin: 0 auto;">
+        <!-- Contact Form -->
+        <div class="card">
+          <h3 style="margin-bottom: var(--spacing-lg);">Contact Us</h3>
+          
+          <form id="contact-form">
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-input" name="email" required placeholder="your@email.com">
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">Subject</label>
+              <select class="form-select" name="subject">
+                <option value="general">General Inquiry</option>
+                <option value="order">Order Issue</option>
+                <option value="payment">Payment Issue</option>
+                <option value="account">Account Issue</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">Message</label>
+              <textarea class="form-textarea" name="message" required placeholder="Describe your issue..."></textarea>
+            </div>
+            
+            <button type="submit" class="btn btn-primary w-full">Send Message</button>
+          </form>
+        </div>
+        
+        <!-- Support Options -->
+        <div>
+          <div class="card mb-lg">
+            <h3 style="margin-bottom: var(--spacing-lg);">💬 Discord Support</h3>
+            <p class="text-muted">Join our Discord server for instant support from our team and community.</p>
+            <a href="https://discord.gg/spacev" target="_blank" class="btn btn-secondary w-full">
+              Join Discord
+            </a>
+          </div>
+          
+          <div class="card">
+            <h3 style="margin-bottom: var(--spacing-lg);">📧 Email Support</h3>
+            <p class="text-muted">For non-urgent inquiries, email us at:</p>
+            <a href="mailto:support@spacev.store" class="btn btn-secondary w-full">
+              support@spacev.store
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- FAQ Section -->
+      <div style="max-width: 800px; margin: var(--spacing-2xl) auto 0;">
+        <h2 class="text-center" style="margin-bottom: var(--spacing-xl);">Frequently Asked Questions</h2>
+        
+        <div class="card mb-md">
+          <h4>How do I receive my purchases?</h4>
+          <p class="text-muted">After completing your purchase, items are automatically delivered to your account. For in-game items, they will appear in-game shortly after purchase.</p>
+        </div>
+        
+        <div class="card mb-md">
+          <h4>What payment methods do you accept?</h4>
+          <p class="text-muted">We accept all major credit cards, PayPal, and various other payment methods through our secure payment processor.</p>
+        </div>
+        
+        <div class="card mb-md">
+          <h4>Can I get a refund?</h4>
+          <p class="text-muted">We offer refunds within 14 days of purchase for eligible items. Please contact our support team to request a refund.</p>
+        </div>
+        
+        <div class="card">
+          <h4>How do I link my Discord account?</h4>
+          <p class="text-muted">Go to your Profile settings and click "Connect" next to Discord, or log in with Discord during registration.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>© 2024 SpaceV. All rights reserved.</p>
+        <div class="footer-social">
+          <a href="https://discord.gg/spacev" target="_blank">💬</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/public/scripts.js"></script>
+</body>
+</html>
+

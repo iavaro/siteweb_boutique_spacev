@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - SpaceV</title>
+  <link rel="stylesheet" href="/public/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container navbar-container">
+      <a href="/" class="navbar-brand">
+        <div class="navbar-logo">🚀</div>
+        <span>SpaceV</span>
+      </a>
+      
+      <button class="navbar-toggle">☰</button>
+      
+      <div class="navbar-menu">
+        <ul class="navbar-links">
+          <li><a href="/" class="navbar-link">Home</a></li>
+          <li><a href="/store" class="navbar-link">Store</a></li>
+          <li><a href="/support" class="navbar-link">Support</a></li>
+          <li><a href="/admin" class="navbar-link" style="color: var(--color-primary);">⚡ Admin</a></li>
+        </ul>
+        
+        <div class="navbar-actions">
+          <a href="/cart" class="btn btn-ghost btn-icon">🛒 <span class="cart-count" style="display: none;">0</span></a>
+          
+          <div class="user-menu">
+            <a href="/dashboard" class="btn btn-secondary">
+              <span class="username">User</span>
+            </a>
+            <button class="btn btn-ghost" onclick="auth.logout()">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Dashboard Content -->
+  <section class="section">
+    <div class="container">
+      <div class="dashboard-grid">
+        <!-- Sidebar -->
+        <div class="dashboard-sidebar">
+          <ul class="dashboard-nav">
+            <li class="dashboard-nav-item">
+              <a href="/dashboard" class="dashboard-nav-link active">
+                <span class="dashboard-nav-icon">📊</span> Overview
+              </a>
+            </li>
+            <li class="dashboard-nav-item">
+              <a href="/dashboard?tab=orders" class="dashboard-nav-link">
+                <span class="dashboard-nav-icon">📦</span> Orders
+              </a>
+            </li>
+            <li class="dashboard-nav-item">
+              <a href="/invoices" class="dashboard-nav-link">
+                <span class="dashboard-nav-icon">📄</span> Invoices
+              </a>
+            </li>
+            <li class="dashboard-nav-item">
+              <a href="/profile" class="dashboard-nav-link">
+                <span class="dashboard-nav-icon">👤</span> Profile
+              </a>
+            </li>
+          </ul>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="dashboard-content">
+          <h1 style="margin-bottom: var(--spacing-xl);">Dashboard</h1>
+          
+          <!-- User Info -->
+          <div class="dashboard-card" id="user-info">
+            <div class="loading"><div class="spinner"></div></div>
+          </div>
+          
+          <!-- Stats -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon">📦</div>
+              <div class="stat-content">
+                <div class="stat-value" id="orders-count">0</div>
+                <div class="stat-label">Total Orders</div>
+              </div>
+            </div>
+            
+            <div class="stat-card">
+              <div class="stat-icon">💰</div>
+              <div class="stat-content">
+                <div class="stat-value" id="total-spent">$0</div>
+                <div class="stat-label">Total Spent</div>
+              </div>
+            </div>
+            
+            <div class="stat-card">
+              <div class="stat-icon">📄</div>
+              <div class="stat-content">
+                <div class="stat-value" id="invoices-count">0</div>
+                <div class="stat-label">Invoices</div>
+              </div>
+            </div>
+            
+            <div class="stat-card">
+              <div class="stat-icon">🔔</div>
+              <div class="stat-content">
+                <div class="stat-value" id="notifications-count">0</div>
+                <div class="stat-label">Unread Notifications</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Recent Orders -->
+          <div class="dashboard-card">
+            <div class="dashboard-card-header">
+              <h3 class="dashboard-card-title">Recent Orders</h3>
+              <a href="/dashboard?tab=orders" class="btn btn-ghost btn-sm">View All</a>
+            </div>
+            
+            <div id="recent-orders">
+              <div class="loading"><div class="spinner"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>© 2024 SpaceV. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/public/scripts.js"></script>
+  <script>
+    // Load dashboard data
+    async function loadDashboard() {
+      try {
+        const response = await user.getProfile();
+        const { user: userData, recentOrders, unreadNotifications } = response;
+        
+        // Update user info
+        const userInfo = document.getElementById('user-info');
+        userInfo.innerHTML = `
+          <div class="flex items-center gap-lg">
+            <div style="width: 80px; height: 80px; background: var(--gradient-primary); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 2rem;">
+              ${userData.avatar ? `<img src="${userData.avatar}" style="width: 100%; height: 100%; border-radius: var(--radius-lg); object-fit: cover;">` : '👤'}
+            </div>
+            <div>
+              <h2 style="margin-bottom: var(--spacing-xs);">${userData.username}</h2>
+              <p class="text-muted">${userData.email}</p>
+              <span class="badge badge-${userData.role === 'ADMIN' ? 'primary' : userData.role === 'MODERATOR' ? 'info' : 'success'}">${userData.role}</span>
+            </div>
+          </div>
+        `;
+        
+        // Update stats
+        document.getElementById('orders-count').textContent = userData._count?.orders || 0;
+        document.getElementById('invoices-count').textContent = userData._count?.invoices || 0;
+        document.getElementById('notifications-count').textContent = unreadNotifications || 0;
+        
+        // Load orders for total spent
+        const { orders: userOrders } = await orders.getAll(1, 100);
+        const totalSpent = userOrders.reduce((sum, order) => sum + parseFloat(order.total || 0), 0);
+        document.getElementById('total-spent').textContent = '$' + totalSpent.toFixed(2);
+        
+        // Load recent orders
+        const ordersContainer = document.getElementById('recent-orders');
+        if (recentOrders.length === 0) {
+          ordersContainer.innerHTML = '<p class="text-muted">No orders yet. <a href="/store">Browse store</a></p>';
+        } else {
+          ordersContainer.innerHTML = `
+            <div class="table-container">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Date</th>
+                    <th>Items</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${recentOrders.slice(0, 5).map(order => `
+                    <tr>
+                      <td>#${order.orderId?.slice(0, 12)}</td>
+                      <td>${ui.formatDate(order.createdAt)}</td>
+                      <td>${order.items?.length || 0} items</td>
+                      <td>$${parseFloat(order.total).toFixed(2)}</td>
+                      <td><span class="badge badge-${order.status === 'COMPLETED' ? 'success' : order.status === 'PENDING' ? 'warning' : 'danger'}">${order.status}</span></td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          `;
+        }
+      } catch (error) {
+        console.error('Failed to load dashboard:', error);
+        if (error.message.includes('Authentication')) {
+          window.location.href = '/login';
+        }
+      }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      loadDashboard();
+    });
+  </script>
+</body>
+</html>
+

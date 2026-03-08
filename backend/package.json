@@ -1,0 +1,36 @@
+{
+  "name": "spacev-backend",
+  "version": "1.0.0",
+  "description": "SpaceV SaaS Backend Server",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node src/index.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:push": "prisma db push"
+  },
+  "keywords": ["saas", "spacev", "tebex", "minecraft"],
+  "author": "SpaceV",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^2.4.3",
+    "prisma": "^5.7.1",
+    "@prisma/client": "^5.7.1",
+    "nodemailer": "^6.9.7",
+    "pdfkit": "^0.14.0",
+    "axios": "^1.6.2",
+    "discord.js": "^14.14.1",
+    "uuid": "^9.0.1",
+    "cookie-parser": "^1.4.6",
+    "helmet": "^7.1.0",
+    "express-rate-limit": "^7.1.5",
+    "express-validator": "^7.0.1",
+    "socket.io": "^4.7.2"
+  }
+}
+

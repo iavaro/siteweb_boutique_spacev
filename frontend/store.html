@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Store - SpaceV</title>
+  <link rel="stylesheet" href="/public/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container navbar-container">
+      <a href="/" class="navbar-brand">
+        <div class="navbar-logo">🚀</div>
+        <span>SpaceV</span>
+      </a>
+      
+      <button class="navbar-toggle">☰</button>
+      
+      <div class="navbar-menu">
+        <ul class="navbar-links">
+          <li><a href="/" class="navbar-link">Home</a></li>
+          <li><a href="/store" class="navbar-link active">Store</a></li>
+          <li><a href="/support" class="navbar-link">Support</a></li>
+          <li><a href="/admin" class="navbar-link" style="color: var(--color-primary);">⚡ Admin</a></li>
+        </ul>
+        
+        <div class="navbar-actions">
+          <a href="/cart" class="btn btn-ghost btn-icon">🛒 <span class="cart-count" style="display: none;">0</span></a>
+          
+          <div class="auth-buttons">
+            <a href="/login" class="btn btn-ghost">Login</a>
+            <a href="/register" class="btn btn-primary">Register</a>
+          </div>
+          
+          <div class="user-menu" style="display: none;">
+            <a href="/dashboard" class="btn btn-secondary">
+              <span class="username">User</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="container">
+      <h1 class="page-title">Store</h1>
+      <p class="page-subtitle">Browse our selection of premium products</p>
+    </div>
+  </div>
+
+  <!-- Store Content -->
+  <section class="section">
+    <div class="container">
+      <div class="flex gap-lg" style="flex-wrap: wrap;">
+        <!-- Filters Sidebar -->
+        <div style="width: 280px; flex-shrink: 0;">
+          <div class="card">
+            <h3 style="margin-bottom: var(--spacing-lg);">Filters</h3>
+            
+            <!-- Search -->
+            <div class="form-group">
+              <label class="form-label">Search</label>
+              <input type="text" class="form-input" id="search-input" placeholder="Search products...">
+            </div>
+            
+            <!-- Categories -->
+            <div class="form-group">
+              <label class="form-label">Category</label>
+              <select class="form-select" id="category-filter">
+                <option value="">All Categories</option>
+              </select>
+            </div>
+            
+            <!-- Product Type -->
+            <div class="form-group">
+              <label class="form-label">Type</label>
+              <select class="form-select" id="type-filter">
+                <option value="">All Types</option>
+                <option value="RANK">Ranks</option>
+                <option value="ITEM">Items</option>
+                <option value="BUNDLE">Bundles</option>
+                <option value="CURRENCY">Currency</option>
+              </select>
+            </div>
+            
+            <button class="btn btn-primary w-full" id="apply-filters">Apply Filters</button>
+          </div>
+        </div>
+        
+        <!-- Products Grid -->
+        <div style="flex: 1; min-width: 300px;">
+          <div class="flex justify-between items-center mb-lg">
+            <p class="text-muted" id="products-count">Loading...</p>
+            <select class="form-select" id="sort-select" style="width: auto;">
+              <option value="sortOrder">Sort by: Default</option>
+              <option value="price">Sort by: Price (Low to High)</option>
+              <option value="price_desc">Sort by: Price (High to Low)</option>
+              <option value="name">Sort by: Name</option>
+            </select>
+          </div>
+          
+          <div class="grid grid-3" id="products-grid">
+            <div class="loading"><div class="spinner"></div></div>
+          </div>
+          
+          <!-- Pagination -->
+          <div class="flex justify-center gap-md mt-xl" id="pagination"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>© 2024 SpaceV. All rights reserved.</p>
+        <div class="footer-social">
+          <a href="https://discord.gg/spacev" target="_blank">💬</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/public/scripts.js"></script>
+  <script>
+    let currentPage = 1;
+    let filters = {
+      search: '',
+      category: '',
+      type: '',
+      sort: 'sortOrder',
+      order: 'asc'
+    };
+
+    // Load categories for filter
+    async function loadCategories() {
+      try {
+        const { categories } = await products.getCategories();
+        const select = document.getElementById('category-filter');
+        
+        categories.forEach(cat => {
+          const option = document.createElement('option');
+          option.value = cat.slug;
+          option.textContent = cat.name;
+          select.appendChild(option);
+        });
+      } catch (error) {
+        console.error('Failed to load categories:', error);
+      }
+    }
+
+    // Load products
+    async function loadProducts() {
+      const grid = document.getElementById('products-grid');
+      const countEl = document.getElementById('products-count');
+      
+      grid.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+      
+      try {
+        const params = {
+          page: currentPage,
+          limit: 12,
+          search: filters.search,
+          category: filters.category,
+          type: filters.type,
+          sort: filters.sort.includes('_') ? filters.sort.split('_')[0] : filters.sort,
+          order: filters.sort.includes('_desc') ? 'desc' : 'asc'
+        };
+        
+        const { products: productsData, pagination } = await products.getAll(params);
+        
+        countEl.textContent = `Showing ${productsData.length} of ${pagination.total} products`;
+        
+        if (productsData.length === 0) {
+          grid.innerHTML = '<div class="empty-state"><p>No products found.</p></div>';
+          document.getElementById('pagination').innerHTML = '';
+          return;
+        }
+        
+        grid.innerHTML = productsData.map(product => `
+          <div class="product-card">
+            <div class="product-image" style="display: flex; align-items: center; justify-content: center; font-size: 4rem;">
+              ${product.type === 'RANK' ? '👑' : product.type === 'CURRENCY' ? '💰' : product.type === 'BUNDLE' ? '🎁' : '🎮'}
+            </div>
+            <div class="product-content">
+              <div class="product-category">${product.category?.name || product.type}</div>
+              <h3 class="product-title">
+                <a href="/store?product=${product.slug}">${product.name}</a>
+              </h3>
+              <p class="product-description">${product.description || 'Premium product for your gaming experience.'}</p>
+              <div class="product-price">$${parseFloat(product.price).toFixed(2)}</div>
+              <div class="product-actions">
+                <button class="btn btn-primary" onclick="addToCart(${product.id})">Add to Cart</button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+        
+        // Render pagination
+        renderPagination(pagination);
+      } catch (error) {
+        grid.innerHTML = '<p class="text-error">Failed to load products.</p>';
+      }
+    }
+
+    // Render pagination
+    function renderPagination(pagination) {
+      const container = document.getElementById('pagination');
+      if (pagination.totalPages <= 1) {
+        container.innerHTML = '';
+        return;
+      }
+      
+      let html = '';
+      
+      if (pagination.hasPrevPage) {
+        html += `<button class="btn btn-secondary" onclick="changePage(${currentPage - 1})">Previous</button>`;
+      }
+      
+      html += `<span class="btn btn-ghost">Page ${pagination.page} of ${pagination.totalPages}</span>`;
+      
+      if (pagination.hasNextPage) {
+        html += `<button class="btn btn-secondary" onclick="changePage(${currentPage + 1})">Next</button>`;
+      }
+      
+      container.innerHTML = html;
+    }
+
+    // Change page
+    function changePage(page) {
+      currentPage = page;
+      loadProducts();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Apply filters
+    document.getElementById('apply-filters').addEventListener('click', () => {
+      filters.search = document.getElementById('search-input').value;
+      filters.category = document.getElementById('category-filter').value;
+      filters.type = document.getElementById('type-filter').value;
+      filters.sort = document.getElementById('sort-select').value;
+      currentPage = 1;
+      loadProducts();
+    });
+
+    // Handle URL params
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('category')) {
+      filters.category = urlParams.get('category');
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      loadCategories();
+      loadProducts();
+    });
+  </script>
+</body>
+</html>
+

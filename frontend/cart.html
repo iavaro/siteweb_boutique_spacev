@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cart - SpaceV</title>
+  <link rel="stylesheet" href="/public/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container navbar-container">
+      <a href="/" class="navbar-brand">
+        <div class="navbar-logo">🚀</div>
+        <span>SpaceV</span>
+      </a>
+      
+      <button class="navbar-toggle">☰</button>
+      
+      <div class="navbar-menu">
+        <ul class="navbar-links">
+          <li><a href="/" class="navbar-link">Home</a></li>
+          <li><a href="/store" class="navbar-link">Store</a></li>
+          <li><a href="/support" class="navbar-link">Support</a></li>
+          <li><a href="/admin" class="navbar-link" style="color: var(--color-primary);">⚡ Admin</a></li>
+        </ul>
+        
+        <div class="navbar-actions">
+          <a href="/cart" class="btn btn-ghost btn-icon">🛒 <span class="cart-count" style="display: none;">0</span></a>
+          
+          <div class="auth-buttons">
+            <a href="/login" class="btn btn-ghost">Login</a>
+            <a href="/register" class="btn btn-primary">Register</a>
+          </div>
+          
+          <div class="user-menu" style="display: none;">
+            <a href="/dashboard" class="btn btn-secondary">
+              <span class="username">User</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="container">
+      <h1 class="page-title">Shopping Cart</h1>
+      <p class="page-subtitle">Review your items before checkout</p>
+    </div>
+  </div>
+
+  <!-- Cart Content -->
+  <section class="section">
+    <div class="container">
+      <div id="cart-content">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>© 2024 SpaceV. All rights reserved.</p>
+        <div class="footer-social">
+          <a href="https://discord.gg/spacev" target="_blank">💬</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/public/scripts.js"></script>
+  <script>
+    // Load cart
+    async function loadCart() {
+      const container = document.getElementById('cart-content');
+      
+      try {
+        const { items, subtotal, itemCount } = await cart.get();
+        
+        if (items.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">🛒</div>
+              <h3 class="empty-state-title">Your cart is empty</h3>
+              <p class="empty-state-description">Browse our store to find amazing products!</p>
+              <a href="/store" class="btn btn-primary">Browse Store</a>
+            </div>
+          `;
+          return;
+        }
+        
+        container.innerHTML = `
+          <div class="flex gap-lg" style="flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 300px;">
+              <div class="card">
+                <h3 style="margin-bottom: var(--spacing-lg);">Cart Items (${itemCount})</h3>
+                
+                <div id="cart-items">
+                  ${items.map(item => `
+                    <div class="flex items-center gap-md" style="padding: var(--spacing-md) 0; border-bottom: 1px solid var(--border-color);">
+                      <div style="width: 60px; height: 60px; background: var(--bg-tertiary); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                        ${item.product.type === 'RANK' ? '👑' : item.product.type === 'CURRENCY' ? '💰' : '🎁'}
+                      </div>
+                      <div style="flex: 1;">
+                        <h4 style="margin-bottom: var(--spacing-xs);">${item.product.name}</h4>
+                        <p class="text-muted" style="font-size: 0.875rem;">$${parseFloat(item.product.price).toFixed(2)} each</p>
+                      </div>
+                      <div class="flex items-center gap-sm">
+                        <button class="btn btn-secondary btn-sm" onclick="updateQuantity(${item.id}, ${item.quantity - 1})">-</button>
+                        <span style="min-width: 30px; text-align: center;">${item.quantity}</span>
+                        <button class="btn btn-secondary btn-sm" onclick="updateQuantity(${item.id}, ${item.quantity + 1})">+</button>
+                      </div>
+                      <div style="text-align: right; min-width: 80px;">
+                        <strong>$${item.total.toFixed(2)}</strong>
+                      </div>
+                      <button class="btn btn-danger btn-sm" onclick="removeFromCart(${item.id})">🗑️</button>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+            
+            <div style="width: 350px; flex-shrink: 0;">
+              <div class="card">
+                <h3 style="margin-bottom: var(--spacing-lg);">Order Summary</h3>
+                
+                <div class="flex justify-between mb-md">
+                  <span>Subtotal</span>
+                  <span>$${subtotal.toFixed(2)}</span>
+                </div>
+                
+                <div class="flex justify-between mb-md">
+                  <span>Tax</span>
+                  <span>$0.00</span>
+                </div>
+                
+                <div class="flex justify-between mb-lg" style="border-top: 1px solid var(--border-color); padding-top: var(--spacing-md);">
+                  <strong>Total</strong>
+                  <strong style="color: var(--neon-violet); font-size: 1.25rem;">$${subtotal.toFixed(2)}</strong>
+                </div>
+                
+                <button class="btn btn-primary w-full" onclick="proceedToCheckout()">
+                  Proceed to Checkout
+                </button>
+                
+                <button class="btn btn-ghost w-full mt-md" onclick="clearCart()">
+                  Clear Cart
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      } catch (error) {
+        container.innerHTML = '<p class="text-error">Failed to load cart.</p>';
+      }
+    }
+
+    // Update quantity
+    async function updateQuantity(productId, quantity) {
+      if (quantity < 1) {
+        await cart.removeItem(productId);
+      } else {
+        await cart.updateItem(productId, quantity);
+      }
+      loadCart();
+      updateCartCount();
+    }
+
+    // Remove from cart
+    async function removeFromCart(productId) {
+      await cart.removeItem(productId);
+      loadCart();
+      updateCartCount();
+    }
+
+    // Clear cart
+    async function clearCart() {
+      await cart.clear();
+      loadCart();
+      updateCartCount();
+    }
+
+    // Proceed to checkout
+    async function proceedToCheckout() {
+      try {
+        const { checkoutUrl } = await cart.checkout();
+        window.location.href = checkoutUrl;
+      } catch (error) {
+        ui.showToast(error.message, 'error');
+      }
+    }
+
+    // Update cart count
+    async function updateCartCount() {
+      try {
+        const { itemCount } = await cart.get();
+        const counter = document.querySelector('.cart-count');
+        if (counter) {
+          counter.textContent = itemCount;
+          counter.style.display = itemCount > 0 ? 'flex' : 'none';
+        }
+      } catch (error) {
+        console.error('Failed to update cart count:', error);
+      }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      loadCart();
+    });
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - SpaceV</title>
+  <link rel="stylesheet" href="/public/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container navbar-container">
+      <a href="/" class="navbar-brand">
+        <div class="navbar-logo">🚀</div>
+        <span>SpaceV</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Checkout Content -->
+  <section class="section">
+    <div class="container">
+      <div class="text-center">
+        <div style="font-size: 4rem; margin-bottom: var(--spacing-lg);">🔄</div>
+        <h1>Redirecting to Checkout...</h1>
+        <p class="text-muted">You are being redirected to our secure payment provider.</p>
+        <p class="text-muted">If you are not redirected, <a href="/cart">click here</a> to return to your cart.</p>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // Redirect to Tebex checkout
+    async function initCheckout() {
+      try {
+        const { checkoutUrl } = await cart.checkout();
+        window.location.href = checkoutUrl;
+      } catch (error) {
+        // If no items in cart, redirect to store
+        window.location.href = '/store';
+      }
+    }
+    
+    initCheckout();
+  </script>
+</body>
+</html>
+

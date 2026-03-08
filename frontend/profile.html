@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile - SpaceV</title>
+  <link rel="stylesheet" href="/public/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container navbar-container">
+      <a href="/" class="navbar-brand">
+        <div class="navbar-logo">🚀</div>
+        <span>SpaceV</span>
+      </a>
+      
+      <button class="navbar-toggle">☰</button>
+      
+      <div class="navbar-menu">
+        <ul class="navbar-links">
+          <li><a href="/" class="navbar-link">Home</a></li>
+          <li><a href="/store" class="navbar-link">Store</a></li>
+          <li><a href="/support" class="navbar-link">Support</a></li>
+          <li><a href="/admin" class="navbar-link" style="color: var(--color-primary);">⚡ Admin</a></li>
+        </ul>
+        
+        <div class="navbar-actions">
+          <a href="/cart" class="btn btn-ghost btn-icon">🛒 <span class="cart-count" style="display: none;">0</span></a>
+          
+          <div class="user-menu">
+            <a href="/dashboard" class="btn btn-secondary">
+              <span class="username">User</span>
+            </a>
+            <button class="btn btn-ghost" onclick="auth.logout()">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Profile Content -->
+  <section class="section">
+    <div class="container">
+      <div class="dashboard-grid">
+        <!-- Sidebar -->
+        <div class="dashboard-sidebar">
+          <ul class="dashboard-nav">
+            <li class="dashboard-nav-item">
+              <a href="/dashboard" class="dashboard-nav-link">
+                <span class="dashboard-nav-icon">📊</span> Overview
+              </a>
+            </li>
+            <li class="dashboard-nav-item">
+              <a href="/dashboard?tab=orders" class="dashboard-nav-link">
+                <span class="dashboard-nav-icon">📦</span> Orders
+              </a>
+            </li>
+            <li class="dashboard-nav-item">
+              <a href="/invoices" class="dashboard-nav-link">
+                <span class="dashboard-nav-icon">📄</span> Invoices
+              </a>
+            </li>
+            <li class="dashboard-nav-item">
+              <a href="/profile" class="dashboard-nav-link active">
+                <span class="dashboard-nav-icon">👤</span> Profile
+              </a>
+            </li>
+          </ul>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="dashboard-content">
+          <h1 style="margin-bottom: var(--spacing-xl);">Profile Settings</h1>
+          
+          <!-- Profile Form -->
+          <div class="dashboard-card">
+            <h3 style="margin-bottom: var(--spacing-lg);">Account Information</h3>
+            
+            <form id="profile-form">
+              <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" class="form-input" id="username" required>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-input" id="email" disabled>
+                <p class="form-hint">Email cannot be changed</p>
+              </div>
+              
+              <button type="submit" class="btn btn-primary">Save Changes</button>
+            </form>
+          </div>
+          
+          <!-- Change Password -->
+          <div class="dashboard-card">
+            <h3 style="margin-bottom: var(--spacing-lg);">Change Password</h3>
+            
+            <form id="password-form">
+              <div class="form-group">
+                <label class="form-label">Current Password</label>
+                <input type="password" class="form-input" name="currentPassword" required>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">New Password</label>
+                <input type="password" class="form-input" name="newPassword" required minlength="8">
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Confirm New Password</label>
+                <input type="password" class="form-input" name="confirmPassword" required>
+              </div>
+              
+              <button type="submit" class="btn btn-primary">Change Password</button>
+            </form>
+          </div>
+          
+          <!-- Linked Accounts -->
+          <div class="dashboard-card">
+            <h3 style="margin-bottom: var(--spacing-lg);">Linked Accounts</h3>
+            
+            <div id="linked-accounts">
+              <div class="flex items-center justify-between" style="padding: var(--spacing-md); background: var(--bg-tertiary); border-radius: var(--radius-md);">
+                <div class="flex items-center gap-md">
+                  <span style="font-size: 1.5rem;">💬</span>
+                  <div>
+                    <strong>Discord</strong>
+                    <p class="text-muted" id="discord-status">Not connected</p>
+                  </div>
+                </div>
+                <button class="btn btn-secondary" id="discord-btn" onclick="auth.loginWithDiscord()">Connect</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>© 2024 SpaceV. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/public/scripts.js"></script>
+  <script>
+    // Load profile data
+    async function loadProfile() {
+      try {
+        const response = await user.getProfile();
+        const { user: userData } = response;
+        
+        document.getElementById('username').value = userData.username;
+        document.getElementById('email').value = userData.email;
+        
+        if (userData.discordId) {
+          document.getElementById('discord-status').textContent = userData.discordUsername || 'Connected';
+          document.getElementById('discord-btn').textContent = 'Connected';
+          document.getElementById('discord-btn').disabled = true;
+        }
+      } catch (error) {
+        console.error('Failed to load profile:', error);
+        if (error.message.includes('Authentication')) {
+          window.location.href = '/login';
+        }
+      }
+    }
+    
+    // Update profile
+    document.getElementById('profile-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      
+      try {
+        await user.updateProfile({ username });
+        ui.showToast('Profile updated successfully!', 'success');
+      } catch (error) {
+        ui.showToast(error.message, 'error');
+      }
+    });
+    
+    // Change password
+    document.getElementById('password-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const currentPassword = form.currentPassword.value;
+      const newPassword = form.newPassword.value;
+      const confirmPassword = form.confirmPassword.value;
+      
+      if (newPassword !== confirmPassword) {
+        ui.showToast('Passwords do not match', 'error');
+        return;
+      }
+      
+      try {
+        await user.changePassword(currentPassword, newPassword);
+        ui.showToast('Password changed successfully!', 'success');
+        form.reset();
+      } catch (error) {
+        ui.showToast(error.message, 'error');
+      }
+    });
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      loadProfile();
+    });
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - SpaceV</title>
+  <link rel="stylesheet" href="/public/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container navbar-container">
+      <a href="/" class="navbar-brand">
+        <div class="navbar-logo">🚀</div>
+        <span>SpaceV</span>
+      </a>
+      
+      <button class="navbar-toggle">☰</button>
+      
+      <div class="navbar-menu">
+        <ul class="navbar-links">
+          <li><a href="/" class="navbar-link">Home</a></li>
+          <li><a href="/store" class="navbar-link">Store</a></li>
+          <li><a href="/admin" class="navbar-link active">Admin</a></li>
+        </ul>
+        
+        <div class="navbar-actions">
+          <div class="user-menu">
+            <a href="/dashboard" class="btn btn-secondary">
+              <span class="username">Admin</span>
+            </a>
+            <button class="btn btn-ghost" onclick="auth.logout()">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Admin Content -->
+  <section class="section">
+    <div class="container">
+      <h1 style="margin-bottom: var(--spacing-xl);">Admin Panel</h1>
+      
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">👥</div>
+          <div class="stat-content">
+            <div class="stat-value" id="total-users">0</div>
+            <div class="stat-label">Total Users</div>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">📦</div>
+          <div class="stat-content">
+            <div class="stat-value" id="total-orders">0</div>
+            <div class="stat-label">Total Orders</div>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">💰</div>
+          <div class="stat-content">
+            <div class="stat-value" id="total-revenue">$0</div>
+            <div class="stat-label">Total Revenue</div>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">⏳</div>
+          <div class="stat-content">
+            <div class="stat-value" id="pending-orders">0</div>
+            <div class="stat-label">Pending Orders</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Tabs -->
+      <div class="card" style="margin-top: var(--spacing-xl);">
+
+          <button class="btn btn-primary" data-tab="dashboard">Dashboard</button>
+          <button class="btn btn-secondary" data-tab="users">Users</button>
+          <button class="btn btn-secondary" data-tab="orders">Orders</button>
+          <button class="btn btn-secondary" data-tab="products">Products</button>
+          <button class="btn btn-secondary" data-tab="analytics">Analytics</button>
+          <button class="btn btn-secondary" data-tab="anticheat">Anti-Cheat</button>
+          <button class="btn btn-secondary" data-tab="rpplayers">RP Players</button>
+          <button class="btn btn-secondary" data-tab="fivem">FiveM Settings</button>
+        
+        <!-- Dashboard Tab -->
+        <div id="tab-dashboard" class="tab-content">
+          <h3 style="margin-bottom: var(--spacing-lg);">Recent Activity</h3>
+          <div id="dashboard-content">
+            <div class="loading"><div class="spinner"></div></div>
+          </div>
+        </div>
+        
+        <!-- Users Tab -->
+        <div id="tab-users" class="tab-content" style="display: none;">
+          <div class="flex justify-between items-center mb-lg">
+            <h3>User Management</h3>
+            <div class="flex gap-md">
+              <input type="text" id="user-search" placeholder="Search users..." class="input" style="width: 200px;">
+              <select id="role-filter" class="input" style="width: 150px;">
+                <option value="">All Roles</option>
+                <option value="USER">User</option>
+                <option value="MODERATOR">Moderator</option>
+                <option value="ADMIN">Admin</option>
+                <option value="OWNER">Owner</option>
+              </select>
+              <button class="btn btn-primary" onclick="loadUsers(1)">Filter</button>
+            </div>
+          </div>
+          <div class="table-container">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Username</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Orders</th>
+                  <th>Joined</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="users-table">
+                <tr><td colspan="7"><div class="loading"><div class="spinner"></div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="users-pagination" class="flex gap-md justify-center mt-lg"></div>
+        </div>
+        
+        <!-- Orders Tab -->
+        <div id="tab-orders" class="tab-content" style="display: none;">
+          <div class="flex justify-between items-center mb-lg">
+            <h3>Order Management</h3>
+            <div class="flex gap-md">
+              <input type="text" id="order-search" placeholder="Search orders..." class="input" style="width: 200px;">
+              <select id="status-filter" class="input" style="width: 150px;">
+                <option value="">All Status</option>
+                <option value="PENDING">Pending</option>
+                <option value="COMPLETED">Completed</option>
+                <option value="CANCELLED">Cancelled</option>
+                <option value="REFUNDED">Refunded</option>
+              </select>
+              <button class="btn btn-primary" onclick="loadOrders(1)">Filter</button>
+            </div>
+          </div>
+          <div class="table-container">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer</th>
+                  <th>Items</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="orders-table">
+                <tr><td colspan="7"><div class="loading"><div class="spinner"></div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="orders-pagination" class="flex gap-md justify-center mt-lg"></div>
+        </div>
+        
+        <!-- Products Tab -->
+        <div id="tab-products" class="tab-content" style="display: none;">
+          <div class="flex justify-between items-center mb-lg">
+            <h3>Product Management</h3>
+            <button class="btn btn-primary" onclick="showAddProductModal()">+ Add Product</button>
+          </div>
+          <div class="table-container">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Category</th>
+                  <th>Price</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="products-table">
+                <tr><td colspan="7"><div class="loading"><div class="spinner"></div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <!-- Analytics Tab -->
+        <div id="tab-analytics" class="tab-content" style="display: none;">
+          <div class="flex gap-md mb-lg">
+            <button class="btn btn-secondary" onclick="loadAnalytics('24h')">24 Hours</button>
+            <button class="btn btn-primary" onclick="loadAnalytics('7d')">7 Days</button>
+            <button class="btn btn-secondary" onclick="loadAnalytics('30d')">30 Days</button>
+            <button class="btn btn-secondary" onclick="loadAnalytics('90d')">90 Days</button>
+          </div>
+          <div id="analytics-data">
+            <div class="loading"><div class="spinner"></div></div>
+          </div>
+        </div>
+        
+        <!-- Anti-Cheat Tab -->
+        <div id="tab-anticheat" class="tab-content" style="display: none;">
+          <div class="flex justify-between items-center mb-lg">
+            <h3>Anti-Cheat Events</h3>
+            <div class="flex gap-md">
+              <select id="ac-severity-filter" class="input" style="width: 150px;">
+                <option value="">All Severity</option>
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
+                <option value="CRITICAL">Critical</option>
+              </select>
+              <button class="btn btn-primary" onclick="loadAntiCheatEvents(1)">Filter</button>
+            </div>
+          </div>
+          <!-- AC Stats -->
+          <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: var(--spacing-lg);">
+            <div class="stat-card">
+              <div class="stat-content">
+                <div class="stat-value" id="ac-total-events">0</div>
+                <div class="stat-label">Total Events</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-content">
+                <div class="stat-value" id="ac-flagged-events">0</div>
+                <div class="stat-label">Flagged</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-content">
+                <div class="stat-value" id="ac-critical-events">0</div>
+                <div class="stat-label">Critical</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-content">
+                <div class="stat-value" id="ac-resolved-events">0</div>
+                <div class="stat-label">Resolved</div>
+              </div>
+            </div>
+          </div>
+          <div class="table-container">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Player</th>
+                  <th>Event</th>
+                  <th>Severity</th>
+                  <th>Value</th>
+                  <th>Time</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="ac-events-table">
+                <tr><td colspan="8"><div class="loading"><div class="spinner"></div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="ac-pagination" class="flex gap-md justify-center mt-lg"></div>
+        </div>
+        
+        <!-- RP Players Tab -->
+        <div id="tab-rpplayers" class="tab-content" style="display: none;">
+          <div class="flex justify-between items-center mb-lg">
+            <h3>RP Player Management</h3>
+            <div class="flex gap-md">
+              <input type="text" id="rp-search" placeholder="Search players..." class="input" style="width: 200px;">
+              <select id="rp-banned-filter" class="input" style="width: 150px;">
+                <option value="">All Status</option>
+                <option value="false">Active</option>
+                <option value="true">Banned</option>
+              </select>
+              <button class="btn btn-primary" onclick="loadRPPlayers(1)">Filter</button>
+            </div>
+          </div>
+          <div class="table-container">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Job</th>
+                  <th>Money</th>
+                  <th>Playtime</th>
+                  <th>K/D</th>
+                  <th>RP Score</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="rp-players-table">
+                <tr><td colspan="9"><div class="loading"><div class="spinner"></div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="rp-pagination" class="flex gap-md justify-center mt-lg"></div>
+        </div>
+        
+        <!-- FiveM Settings Tab -->
+        <div id="tab-fivem" class="tab-content" style="display: none;">
+          <div class="flex justify-between items-center mb-lg">
+            <h3>FiveM Server Settings</h3>
+            <button class="btn btn-primary" onclick="showAddServerModal()">+ Add Server</button>
+          </div>
+          
+          <!-- Server Stats -->
+          <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: var(--spacing-lg);">
+            <div class="stat-card">
+              <div class="stat-content">
+                <div class="stat-value" id="fivem-total-servers">0</div>
+                <div class="stat-label">Total Servers</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-content">
+                <div class="stat-value" id="fivem-active-servers">0</div>
+                <div class="stat-label">Active Servers</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-content">
+                <div class="stat-value" id="fivem-inactive-servers">0</div>
+                <div class="stat-label">Inactive Servers</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Servers Table -->
+          <div class="table-container">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Server Name</th>
+                  <th>IP Address</th>
+                  <th>Port</th>
+                  <th>API Key</th>
+                  <th>Status</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="fivem-servers-table">
+                <tr><td colspan="8"><div class="loading"><div class="spinner"></div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- API Key Usage Instructions -->
+          <div class="card" style="margin-top: var(--spacing-lg);">
+            <h4 style="margin-bottom: var(--spacing-md);">How to Use API Key</h4>
+            <p style="margin-bottom: var(--spacing-md); color: var(--text-muted);">Add the following code to your FiveM server's integration script:</p>
+            <pre style="background: var(--bg-secondary); padding: var(--spacing-md); border-radius: var(--radius-md); overflow-x: auto; font-size: 12px;">-- SpaceV API Configuration
+Config.SpaceV = {
+  apiKey = "YOUR_API_KEY_HERE",
+  serverUrl = "YOUR_SERVER_URL"
+}
+
+-- Send player data to SpaceV
+RegisterNetEvent('spacev:updatePlayer')
+AddEventHandler('spacev:updatePlayer', function(playerData)
+  PerformHttpRequest(Config.SpaceV.serverUrl .. '/api/fivem/player/update-stats', function(err, response)
+    -- Handle response
+  end, 'POST', json.encode({
+    apiKey = Config.SpaceV.apiKey,
+    license = playerData.license,
+    playerName = playerData.name,
+    stats = playerData.stats
+  }), {['Content-Type'] = 'application/json'})
+end)</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Edit User Modal -->
+  <div class="modal-overlay" id="edit-user-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Edit User</h3>
+        <button class="modal-close" onclick="closeEditUserModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="edit-user-id">
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <input type="text" id="edit-username" class="input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Role</label>
+          <select id="edit-role" class="input">
+            <option value="USER">User</option>
+            <option value="MODERATOR">Moderator</option>
+            <option value="ADMIN">Admin</option>
+            <option value="OWNER">Owner</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">
+            <input type="checkbox" id="edit-email-verified"> Email Verified
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeEditUserModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveUser()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Order Modal -->
+  <div class="modal-overlay" id="edit-order-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Order Details</h3>
+        <button class="modal-close" onclick="closeEditOrderModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="order-details-content">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeEditOrderModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>© 2024 SpaceV. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/public/scripts.js"></script>
+  <script>
+    let currentTab = 'dashboard';
+    let usersPage = 1;
+    let ordersPage = 1;
+    let currentUser = null;
+    
+    // Check authentication on load
+    async function checkAuth() {
+      try {
+        const result = await auth.check();
+        if (!result.authenticated) {
+          // Not logged in, redirect to login
+          window.location.href = '/login?redirect=/admin';
+          return false;
+        }
+        
+        // Check if user has admin role
+        if (result.user && !['ADMIN', 'OWNER'].includes(result.user.role)) {
+          ui.showToast('Access denied. Admin privileges required.', 'error');
+          window.location.href = '/dashboard';
+          return false;
+        }
+        
+        currentUser = result.user;
+        
+        // Update username display
+        const usernameEl = document.querySelector('.username');
+        if (usernameEl) usernameEl.textContent = result.user.username;
+        
+        return true;
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        window.location.href = '/login?redirect=/admin';
+        return false;
+      }
+    }
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', async () => {
+      const isAuth = await checkAuth();
+      if (isAuth) {
+        loadStats();
+        loadDashboard();
+      }
+    });
+    document.querySelectorAll('[data-tab]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-tab]').forEach(b => b.classList.replace('btn-primary', 'btn-secondary'));
+        btn.classList.replace('btn-secondary', 'btn-primary');
+        
+        document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
+        document.getElementById(`tab-${btn.dataset.tab}`).style.display = 'block';
+        
+        currentTab = btn.dataset.tab;
+        loadTabData(currentTab);
+      });
+    });
+    
+    // Load dashboard stats
+    async function loadStats() {
+      try {
+        const { stats } = await admin.getDashboard();
+        document.getElementById('total-users').textContent = stats.totalUsers;
+        document.getElementById('total-orders').textContent = stats.totalOrders;
+        document.getElementById('total-revenue').textContent = '$' + parseFloat(stats.totalRevenue || 0).toFixed(2);
+        document.getElementById('pending-orders').textContent = stats.pendingOrders;
+      } catch (error) {
+        console.error('Failed to load stats:', error);
+      }
+    }
+    
+    // Load dashboard content
+    async function loadDashboard() {
+      try {
+        const data = await admin.getDashboard();
+        const container = document.getElementById('dashboard-content');
+        
+        let html = '<h4 style="margin-bottom: var(--spacing-md);">Recent Orders</h4>';
+        html += '<div class="table-container"><table class="table"><thead><tr><th>Order ID</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th></tr></thead><tbody>';
+        
+        if (data.recentOrders.length === 0) {
+          html += '<tr><td colspan="5" class="text-center">No orders yet</td></tr>';
+        } else {
+          data.recentOrders.forEach(order => {
+            html += `<tr>
+              <td>#${order.orderId?.slice(0, 12)}</td>
+              <td>${order.customerEmail || order.user?.username || 'Guest'}</td>
+              <td>$${parseFloat(order.total).toFixed(2)}</td>
+              <td><span class="badge badge-${order.status === 'COMPLETED' ? 'success' : order.status === 'PENDING' ? 'warning' : 'danger'}">${order.status}</span></td>
+              <td>${ui.formatDate(order.createdAt)}</td>
+            </tr>`;
+          });
+        }
+        html += '</tbody></table></div>';
+        
+        html += '<h4 style="margin: var(--spacing-lg) 0 var(--spacing-md);">Recent Signups</h4>';
+        html += '<div class="table-container"><table class="table"><thead><tr><th>Username</th><th>Email</th><th>Role</th><th>Joined</th></tr></thead><tbody>';
+        
+        if (data.recentSignups.length === 0) {
+          html += '<tr><td colspan="4" class="text-center">No signups yet</td></tr>';
+        } else {
+          data.recentSignups.forEach(user => {
+            html += `<tr>
+${user.username}              <td></td>
+              <td>${user.email}</td>
+              <td><span class="badge badge-${user.role === 'OWNER' ? 'danger' : user.role === 'ADMIN' ? 'primary' : user.role === 'MODERATOR' ? 'info' : 'success'}">${user.role}</span></td>
+              <td>${ui.formatDate(user.createdAt)}</td>
+            </tr>`;
+          });
+        }
+        html += '</tbody></table></div>';
+        
+        container.innerHTML = html;
+      } catch (error) {
+        console.error('Failed to load dashboard:', error);
+      }
+    }
+    
+    // Load users
+    async function loadUsers(page = 1) {
+      usersPage = page;
+      try {
+        const search = document.getElementById('user-search').value;
+        const role = document.getElementById('role-filter').value;
+        
+        const { users, pagination } = await admin.getUsers(page, { search, role });
+        const tbody = document.getElementById('users-table');
+        
+        if (users.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" class="text-center">No users found</td></tr>';
+          return;
+        }
+        
+        tbody.innerHTML = users.map(user => `
+          <tr>
+            <td>${user.id}</td>
+            <td>${user.username}</td>
+            <td>${user.email}</td>
+            <td><span class="badge badge-${user.role === 'OWNER' ? 'danger' : user.role === 'ADMIN' ? 'primary' : user.role === 'MODERATOR' ? 'info' : 'success'}">${user.role}</span></td>
+            <td>${user._count?.orders || 0}</td>
+            <td>${ui.formatDate(user.createdAt)}</td>
+            <td>
+              <button class="btn btn-ghost btn-sm" onclick="openEditUserModal(${user.id}, '${user.username}', '${user.role}', ${user.emailVerified})">Edit</button>
+            </td>
+          </tr>
+        `).join('');
+        
+        // Render pagination
+        renderPagination('users-pagination', pagination, (p) => loadUsers(p));
+      } catch (error) {
+        console.error('Failed to load users:', error);
+      }
+    }
+    
+    // Load orders
+    async function loadOrders(page = 1) {
+      ordersPage = page;
+      try {
+        const search = document.getElementById('order-search').value;
+        const status = document.getElementById('status-filter').value;
+        
+        const { orders, pagination } = await admin.getOrders(page, { search, status });
+        const tbody = document.getElementById('orders-table');
+        
+        if (orders.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" class="text-center">No orders found</td></tr>';
+          return;
+        }
+        
+        tbody.innerHTML = orders.map(order => `
+          <tr>
+            <td>#${order.orderId?.slice(0, 12)}</td>
+            <td>${order.customerEmail || order.user?.username || 'Guest'}</td>
+            <td>${order.items?.length || 0} items</td>
+            <td>$${parseFloat(order.total).toFixed(2)}</td>
+            <td><span class="badge badge-${order.status === 'COMPLETED' ? 'success' : order.status === 'PENDING' ? 'warning' : order.status === 'REFUNDED' ? 'info' : 'danger'}">${order.status}</span></td>
+            <td>${ui.formatDate(order.createdAt)}</td>
+            <td>
+              <button class="btn btn-ghost btn-sm" onclick="viewOrder(${order.id})">View</button>
+              <button class="btn btn-ghost btn-sm" onclick="showUpdateOrderStatus(${order.id}, '${order.status}')">Status</button>
+            </td>
+          </tr>
+        `).join('');
+        
+        // Render pagination
+        renderPagination('orders-pagination', pagination, (p) => loadOrders(p));
+      } catch (error) {
+        console.error('Failed to load orders:', error);
+      }
+    }
+    
+    // Render pagination
+    function renderPagination(containerId, pagination, callback) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      
+      let html = '';
+      if (pagination.totalPages > 1) {
+        for (let i = 1; i <= pagination.totalPages; i++) {
+          html += `<button class="btn ${i === pagination.page ? 'btn-primary' : 'btn-ghost'}" onclick="${callback.name}(${i})">${i}</button>`;
+        }
+      }
+      container.innerHTML = html;
+    }
+    
+    // Load products
+    async function loadProducts() {
+      try {
+        const { products } = await admin.getProducts();
+        const tbody = document.getElementById('products-table');
+        
+        if (products.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" class="text-center">No products found</td></tr>';
+          return;
+        }
+        
+        tbody.innerHTML = products.map(product => `
+          <tr>
+            <td>${product.id}</td>
+            <td>${product.name}</td>
+            <td>${product.category?.name || '-'}</td>
+            <td>$${parseFloat(product.price).toFixed(2)}</td>
+            <td>${product.type}</td>
+            <td><span class="badge badge-${product.isActive ? 'success' : 'danger'}">${product.isActive ? 'Active' : 'Inactive'}</span></td>
+            <td>
+              <button class="btn btn-ghost btn-sm">Edit</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (error) {
+        console.error('Failed to load products:', error);
+      }
+    }
+    
+    // Load analytics
+    async function loadAnalytics(period = '7d') {
+      try {
+        const { summary } = await admin.getAnalytics(period);
+        const container = document.getElementById('analytics-data');
+        
+        container.innerHTML = `
+          <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr);">
+            <div class="stat-card">
+              <div class="stat-content">
+                <div class="stat-value">$${parseFloat(summary.revenue || 0).toFixed(2)}</div>
+                <div class="stat-label">Revenue</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-content">
+                <div class="stat-value">${summary.orders || 0}</div>
+                <div class="stat-label">Orders</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-content">
+                <div class="stat-value">$${parseFloat(summary.averageOrderValue || 0).toFixed(2)}</div>
+                <div class="stat-label">Avg Order</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-content">
+                <div class="stat-value">${summary.newUsers || 0}</div>
+                <div class="stat-label">New Users</div>
+              </div>
+            </div>
+          </div>
+        `;
+      } catch (error) {
+        console.error('Failed to load analytics:', error);
+      }
+    }
+    
+    // Load tab data
+    function loadTabData(tab) {
+      switch(tab) {
+        case 'dashboard':
+          loadStats();
+          loadDashboard();
+          break;
+        case 'users': loadUsers(1); break;
+        case 'orders': loadOrders(1); break;
+        case 'products': loadProducts(); break;
+        case 'analytics': loadAnalytics('7d'); break;
+        case 'anticheat': loadAntiCheatEvents(1); loadAntiCheatStats(); break;
+        case 'rpplayers': loadRPPlayers(1); break;
+        case 'fivem': loadFiveMServers(); break;
+      }
+    }
+    
+    // ==================== ANTI-CHEAT FUNCTIONS ====================
+    
+    async function loadAntiCheatStats() {
+      try {
+        const data = await adminRp.getAnticheatStats();
+        document.getElementById('ac-total-events').textContent = data.totalEvents || 0;
+        
+        // Calculate flagged
+        const flagged = data.eventsBySeverity?.find(s => s.severity === 'HIGH' || s.severity === 'CRITICAL')?.count || 0;
+        document.getElementById('ac-flagged-events').textContent = flagged;
+        
+        // Calculate critical
+        const critical = data.eventsBySeverity?.find(s => s.severity === 'CRITICAL')?.count || 0;
+        document.getElementById('ac-critical-events').textContent = critical;
+        
+        // Get resolved count from events
+        const resolved = data.recentEvents?.filter(e => e.resolved).length || 0;
+        document.getElementById('ac-resolved-events').textContent = resolved;
+      } catch (error) {
+        console.error('Failed to load AC stats:', error);
+      }
+    }
+    
+    async function loadAntiCheatEvents(page = 1) {
+      try {
+        const severity = document.getElementById('ac-severity-filter').value;
+        const { events, pagination } = await adminRp.getAnticheatEvents({ severity, page });
+        const tbody = document.getElementById('ac-events-table');
+        
+        if (events.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="8" class="text-center">No anti-cheat events found</td></tr>';
+          return;
+        }
+        
+        tbody.innerHTML = events.map(event => `
+          <tr>
+            <td>${event.id}</td>
+            <td>${event.playerName}</td>
+            <td>${event.eventType.replace(/_/g, ' ')}</td>
+            <td><span class="badge badge-${event.severity === 'CRITICAL' ? 'danger' : event.severity === 'HIGH' ? 'warning' : event.severity === 'MEDIUM' ? 'info' : 'success'}">${event.severity}</span></td>
+            <td>${event.value ? '$' + parseFloat(event.value).toLocaleString() : '-'}</td>
+            <td>${ui.formatDate(event.createdAt)}</td>
+            <td><span class="badge badge-${event.resolved ? 'success' : 'warning'}">${event.resolved ? 'Resolved' : 'Pending'}</span></td>
+            <td>
+              ${!event.resolved ? `<button class="btn btn-ghost btn-sm" onclick="resolveAntiCheatEvent(${event.id})">Resolve</button>` : ''}
+              <button class="btn btn-ghost btn-sm" onclick="banPlayerFromAC(${event.playerId})">Ban</button>
+            </td>
+          </tr>
+        `).join('');
+        
+        renderPagination('ac-pagination', pagination, (p) => loadAntiCheatEvents(p));
+      } catch (error) {
+        console.error('Failed to load anti-cheat events:', error);
+        document.getElementById('ac-events-table').innerHTML = '<tr><td colspan="8" class="text-center">Error loading events</td></tr>';
+      }
+    }
+    
+    async function resolveAntiCheatEvent(eventId) {
+      try {
+        await adminRp.resolveAntiCheatEvent(eventId, currentUser.username);
+        ui.showToast('Event resolved', 'success');
+        loadAntiCheatEvents(1);
+        loadAntiCheatStats();
+      } catch (error) {
+        ui.showToast(error.message, 'error');
+      }
+    }
+    
+    async function banPlayerFromAC(playerId) {
+      const reason = prompt('Enter ban reason:');
+      if (!reason) return;
+      
+      try {
+        await adminRp.banRPPlayer(playerId, reason);
+        ui.showToast('Player banned', 'success');
+        loadAntiCheatEvents(1);
+        loadRPPlayers(1);
+      } catch (error) {
+        ui.showToast(error.message, 'error');
+      }
+    }
+    
+    // ==================== RP PLAYERS FUNCTIONS ====================
+    
+    async function loadRPPlayers(page = 1) {
+      try {
+        const search = document.getElementById('rp-search').value;
+        const isBanned = document.getElementById('rp-banned-filter').value;
+        
+        const { players, pagination } = await adminRp.getPlayers({ search, isBanned, page });
+        const tbody = document.getElementById('rp-players-table');
+        
+        if (players.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="9" class="text-center">No players found</td></tr>';
+          return;
+        }
+        
+        tbody.innerHTML = players.map(player => {
+          const stats = player.stats || {};
+          const job = player.job || {};
+          const kd = stats.deaths > 0 ? (stats.kills / stats.deaths).toFixed(2) : stats.kills;
+          const playtimeHours = Math.floor(stats.playtime / 60);
+          
+          return `
+            <tr>
+              <td>${player.id}</td>
+              <td>${player.playerName}</td>
+              <td>${job.jobLabel || 'Unemployed'}</td>
+              <td>$${parseFloat(stats.money || 0).toLocaleString()}</td>
+              <td>${playtimeHours}h</td>
+              <td>${kd}</td>
+              <td>${player.rpScore}</td>
+              <td><span class="badge badge-${player.isBanned ? 'danger' : 'success'}">${player.isBanned ? 'Banned' : 'Active'}</span></td>
+              <td>
+                <button class="btn btn-ghost btn-sm" onclick="viewRPPlayer(${player.id})">View</button>
+                ${player.isBanned ? 
+                  `<button class="btn btn-ghost btn-sm" onclick="unbanRPPlayer(${player.id})">Unban</button>` : 
+                  `<button class="btn btn-ghost btn-sm" onclick="banRPPlayer(${player.id})">Ban</button>`
+                }
+                <button class="btn btn-ghost btn-sm" onclick="wipeInventoryRP(${player.id})">Wipe Inv</button>
+                <button class="btn btn-ghost btn-sm" onclick="resetStatsRP(${player.id})">Reset</button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+        
+        renderPagination('rp-pagination', pagination, (p) => loadRPPlayers(p));
+      } catch (error) {
+        console.error('Failed to load RP players:', error);
+        document.getElementById('rp-players-table').innerHTML = '<tr><td colspan="9" class="text-center">Error loading players</td></tr>';
+      }
+    }
+    
+    async function viewRPPlayer(playerId) {
+      window.location.href = '/player.html?id=' + playerId;
+    }
+    
+    async function banRPPlayer(playerId) {
+      const reason = prompt('Enter ban reason:');
+      if (!reason) return;
+      
+      try {
+        await adminRp.banRPPlayer(playerId, reason);
+        ui.showToast('Player banned', 'success');
+        loadRPPlayers(1);
+      } catch (error) {
+        ui.showToast(error.message, 'error');
+      }
+    }
+    
+    async function unbanRPPlayer(playerId) {
+      try {
+        await adminRp.unbanRPPlayer(playerId);
+        ui.showToast('Player unbanned', 'success');
+        loadRPPlayers(1);
+      } catch (error) {
+        ui.showToast(error.message, 'error');
+      }
+    }
+    
+    async function wipeInventoryRP(playerId) {
+      if (!confirm('Are you sure you want to wipe this player\'s inventory?')) return;
+      
+      try {
+        await adminRp.wipeInventory(playerId);
+        ui.showToast('Inventory wiped', 'success');
+      } catch (error) {
+        ui.showToast(error.message, 'error');
+      }
+    }
+    
+    async function resetStatsRP(playerId) {
+      if (!confirm('Are you sure you want to reset this player\'s stats?')) return;
+      
+      try {
+        await adminRp.resetStats(playerId);
+        ui.showToast('Stats reset', 'success');
+        loadRPPlayers(1);
+      } catch (error) {
+        ui.showToast(error.message, 'error');
+      }
+    }
+    
+    // Edit user modal
+    function openEditUserModal(id, username, role, emailVerified) {
+      document.getElementById('edit-user-id').value = id;
+      document.getElementById('edit-username').value = username;
+      document.getElementById('edit-role').value = role;
+      document.getElementById('edit-email-verified').checked = emailVerified;
+      document.getElementById('edit-user-modal').classList.add('active');
+    }
+    
+    function closeEditUserModal() {
+      document.getElementById('edit-user-modal').classList.remove('active');
+    }
+    
+    async function saveUser() {
+      const id = document.getElementById('edit-user-id').value;
+      const username = document.getElementById('edit-username').value;
+      const role = document.getElementById('edit-role').value;
+      const emailVerified = document.getElementById('edit-email-verified').checked;
+      
+      try {
+        await api.put(`/admin/users/${id}`, { username, role, emailVerified });
+        ui.showToast('User updated successfully', 'success');
+        closeEditUserModal();
+        loadUsers(usersPage);
+      } catch (error) {
+        ui.showToast(error.message, 'error');
+      }
+    }
+    
+    // Order modals
+    async function viewOrder(id) {
+      try {
+        const { order } = await api.get(`/admin/orders/${id}`);
+        const content = document.getElementById('order-details-content');
+        
+        content.innerHTML = `
+          <div class="form-group">
+            <label class="form-label">Order ID</label>
+            <p>${order.orderId}</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Customer</label>
+            <p>${order.customerEmail || order.user?.username || 'Guest'}</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Total</label>
+            <p>$${parseFloat(order.total).toFixed(2)}</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select id="order-status-select" class="input">
+              <option value="PENDING" ${order.status === 'PENDING' ? 'selected' : ''}>Pending</option>
+              <option value="COMPLETED" ${order.status === 'COMPLETED' ? 'selected' : ''}>Completed</option>
+              <option value="CANCELLED" ${order.status === 'CANCELLED' ? 'selected' : ''}>Cancelled</option>
+              <option value="REFUNDED" ${order.status === 'REFUNDED' ? 'selected' : ''}>Refunded</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Items</label>
+            <ul>
+              ${order.items?.map(item => `<li>${item.quantity}x ${item.product?.name} - $${parseFloat(item.price).toFixed(2)}</li>`).join('') || 'No items'}
+            </ul>
+          </div>
+          <button class="btn btn-primary" onclick="updateOrderStatus(${order.id})">Update Status</button>
+        `;
+        
+        document.getElementById('edit-order-modal').classList.add('active');
+      } catch (error) {
+        ui.showToast(error.message, 'error');
+      }
+    }
+    
+    function closeEditOrderModal() {
+      document.getElementById('edit-order-modal').classList.remove('active');
+    }
+    
+    async function updateOrderStatus(orderId) {
+      const status = document.getElementById('order-status-select').value;
+      try {
+        await api.put(`/admin/orders/${orderId}`, { status });
+        ui.showToast('Order status updated', 'success');
+        closeEditOrderModal();
+        loadOrders(ordersPage);
+      } catch (error) {
+        ui.showToast(error.message, 'error');
+      }
+    }
+    
+    function showUpdateOrderStatus(id, currentStatus) {
+      viewOrder(id);
+    }
+    
+    // Placeholder for add product
+    function showAddProductModal() {
+      ui.showToast('Product management coming soon', 'info');
+    }
+    
+    // ==================== FIVEM SERVER FUNCTIONS ====================
+    
+    // Load FiveM servers
+    async function loadFiveMServers() {
+      try {
+        const { servers } = await adminRp.getServers();
+        
+        // Update stats
+        document.getElementById('fivem-total-servers').textContent = servers.length;
+        document.getElementById('fivem-active-servers').textContent = servers.filter(s => s.isActive).length;
+        document.getElementById('fivem-inactive-servers').textContent = servers.filter(s => !s.isActive).length;
+        
+        const tbody = document.getElementById('fivem-servers-table');
+        
+        if (servers.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="8" class="text-center">No servers found. Click "Add Server" to create one.</td></tr>';
+          return;
+        }
+        
+        tbody.innerHTML = servers.map(server => `
+          <tr>
+            <td>${server.id}</td>
+            <td>${server.name}</td>
+            <td>${server.ipAddress || '-'}</td>
+            <td>${server.port || 30120}</td>
+            <td>
+              <div class="flex gap-sm items-center">
+                <code style="font-size: 11px; background: var(--bg-secondary); padding: 2px 6px; border-radius: 4px;">${server.apiKey}</code>
+                <button class="btn btn-ghost btn-sm" onclick="copyApiKey('${server.apiKey}')" title="Copy API Key">📋</button>
+              </div>
+            </td>
+            <td><span class="badge badge-${server.isActive ? 'success' : 'danger'}">${server.isActive ? 'Active' : 'Inactive'}</span></td>
+            <td>${ui.formatDate(server.createdAt)}</td>
+            <td>
+              <button class="btn btn-ghost btn-sm" onclick="toggleServerStatus(${server.id}, ${server.isActive})">${server.isActive ? 'Disable' : 'Enable'}</button>
+              <button class="btn btn-ghost btn-sm" onclick="regenerateApiKey(${server.id})">Regenerate Key</button>
+              <button class="btn btn-ghost btn-sm" onclick="editServer(${server.id})">Edit</button>
+              <button class="btn btn-ghost btn-sm" onclick="deleteServer(${server.id})">Delete</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (error) {
+        console.error('Failed to load FiveM servers:', error);
+        document.getElementById('fivem-servers-table').innerHTML = '<tr><td colspan="8" class="text-center">Error loading servers</td></tr>';
+      }
+    }
+    
+    // Copy API key to clipboard
+    async function copyApiKey(apiKey) {
+      try {
+        await navigator.clipboard.writeText(apiKey);
+        ui.showToast('API key copied to clipboard', 'success');
+      } catch (error) {
+        ui.showToast('Failed to copy API key', 'error');
+      }
+    }
+    
+    // Show add server modal
+    function showAddServerModal() {
+      const name = prompt('Enter server name:');
+      if (!name) return;
+      
+      const ipAddress = prompt('Enter server IP address (optional):');
+      const port = prompt('Enter server port (default: 30120):');
+      
+      adminRp.addServer({
+        name,
+        ipAddress: ipAddress || null,
+        port: port ? parseInt(port) : 30120
+      }).then(() => {
+        ui.showToast('Server created successfully', 'success');
+        loadFiveMServers();
+      }).catch(error => {
+        ui.showToast(error.message, 'error');
+      });
+    }
+    
+    // Toggle server status
+    async function toggleServerStatus(serverId, currentStatus) {
+      try {
+        await adminRp.updateServer(serverId, { isActive: !currentStatus });
+        ui.showToast(`Server ${currentStatus ? 'disabled' : 'enabled'}`, 'success');
+        loadFiveMServers();
+      } catch (error) {
+        ui.showToast(error.message, 'error');
+      }
+    }
+    
+    // Regenerate API key
+    async function regenerateApiKey(serverId) {
+      if (!confirm('Are you sure you want to regenerate the API key? The old key will stop working.')) return;
+      
+      try {
+        const { server } = await api.post(`/admin-rp/servers/${serverId}/regenerate-key`);
+        ui.showToast('API key regenerated', 'success');
+        loadFiveMServers();
+      } catch (error) {
+        ui.showToast(error.message, 'error');
+      }
+    }
+    
+    // Edit server
+    function editServer(serverId) {
+      const name = prompt('Enter new server name:');
+      if (!name) return;
+      
+      const ipAddress = prompt('Enter server IP address:');
+      const port = prompt('Enter server port:');
+      
+      adminRp.updateServer(serverId, {
+        name,
+        ipAddress: ipAddress || undefined,
+        port: port ? parseInt(port) : undefined
+      }).then(() => {
+        ui.showToast('Server updated', 'success');
+        loadFiveMServers();
+      }).catch(error => {
+        ui.showToast(error.message, 'error');
+      });
+    }
+    
+    // Delete server
+    async function deleteServer(serverId) {
+      if (!confirm('Are you sure you want to delete this server? This action cannot be undone.')) return;
+      
+      try {
+        await adminRp.deleteServer(serverId);
+        ui.showToast('Server deleted', 'success');
+        loadFiveMServers();
+      } catch (error) {
+        ui.showToast(error.message, 'error');
+      }
+    }
+  </script>
+</body>
+</html>
+

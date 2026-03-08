@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Player Profile - SpaceV RP</title>
+  <link rel="stylesheet" href="/public/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👤</text></svg>">
+  <style>
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xl);
+      margin-bottom: var(--spacing-xxl);
+      flex-wrap: wrap;
+    }
+    
+    .profile-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: var(--bg-tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      border: 4px solid var(--primary-color);
+    }
+    
+    .profile-info h1 {
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .profile-badges {
+      display: flex;
+      gap: var(--spacing-sm);
+      flex-wrap: wrap;
+    }
+    
+    .profile-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      padding: var(--spacing-xs) var(--spacing-md);
+      border-radius: var(--radius-md);
+      background: var(--bg-tertiary);
+      font-size: 0.875rem;
+    }
+    
+    .profile-badge.banned {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+    }
+    
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: var(--spacing-xl);
+      margin-bottom: var(--spacing-xxl);
+    }
+    
+    .profile-card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-xl);
+    }
+    
+    .profile-card h3 {
+      margin-bottom: var(--spacing-lg);
+      padding-bottom: var(--spacing-md);
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--spacing-md);
+    }
+    
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing-sm);
+      background: var(--bg-secondary);
+      border-radius: var(--radius-md);
+    }
+    
+    .stat-item .label {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+    
+    .stat-item .value {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    .stat-item .value.money {
+      color: #10b981;
+    }
+    
+    .rank-position {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: bold;
+      margin-left: var(--spacing-xs);
+    }
+    
+    .inventory-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: var(--spacing-md);
+    }
+    
+    .inventory-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: var(--spacing-md);
+      background: var(--bg-secondary);
+      border-radius: var(--radius-md);
+      text-align: center;
+    }
+    
+    .inventory-item .icon {
+      font-size: 2rem;
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .inventory-item .name {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    
+    .inventory-item .count {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    .assets-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+    
+    .asset-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing-md);
+      background: var(--bg-secondary);
+      border-radius: var(--radius-md);
+    }
+    
+    .asset-item .info {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+    }
+    
+    .asset-item .icon {
+      font-size: 1.5rem;
+    }
+    
+    .asset-item .value {
+      color: #10b981;
+      font-weight: 500;
+    }
+    
+    .tabs {
+      display: flex;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-xl);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: var(--spacing-md);
+    }
+    
+    .tab-btn {
+      padding: var(--spacing-sm) var(--spacing-lg);
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-radius: var(--radius-md);
+      font-weight: 500;
+    }
+    
+    .tab-btn:hover {
+      background: var(--bg-secondary);
+    }
+    
+    .tab-btn.active {
+      background: var(--primary-color);
+      color: white;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .loading-container {
+      display: flex;
+      justify-content: center;
+      padding: var(--spacing-xxl);
+    }
+    
+    .not-found {
+      text-align: center;
+      padding: var(--spacing-xxl);
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container navbar-container">
+      <a href="/" class="navbar-brand">
+        <div class="navbar-logo">🚀</div>
+        <span>SpaceV</span>
+      </a>
+      
+      <button class="navbar-toggle">☰</button>
+      
+      <div class="navbar-menu">
+        <ul class="navbar-links">
+          <li><a href="/" class="navbar-link">Home</a></li>
+          <li><a href="/store" class="navbar-link">Store</a></li>
+          <li><a href="/leaderboards" class="navbar-link">Leaderboards</a></li>
+        </ul>
+        
+        <div class="navbar-actions">
+          <div class="auth-buttons">
+            <a href="/login" class="btn btn-ghost">Login</a>
+            <a href="/register" class="btn btn-primary">Register</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <section class="section">
+    <div class="container">
+      <div id="profile-content">
+        <div class="loading-container">
+          <div class="loading"><div class="spinner"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>© 2024 SpaceV. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/public/scripts.js"></script>
+  <script>
+    // Get player ID from URL
+    const playerId = window.location.pathname.split('/').pop();
+    
+    // Load player profile
+    async function loadProfile() {
+      const container = document.getElementById('profile-content');
+      container.innerHTML = '<div class="loading-container"><div class="loading"><div class="spinner"></div></div></div>';
+      
+      try {
+        const data = await api.get(`/players/${playerId}`);
+        const player = data.player;
+        
+        if (!player) {
+          container.innerHTML = `
+            <div class="not-found">
+              <h2>Player Not Found</h2>
+              <p style="color: var(--text-secondary);">The player you're looking for doesn't exist.</p>
+              <a href="/leaderboards" class="btn btn-primary" style="margin-top: var(--spacing-lg);">View Leaderboards</a>
+            </div>
+          `;
+          return;
+        }
+        
+        // Render profile
+        let html = `
+          <div class="profile-header">
+            <div class="profile-avatar">${player.avatar ? `<img src="${player.avatar}" alt="${player.playerName}">` : '🎮'}</div>
+            <div class="profile-info">
+              <h1>${player.playerName}</h1>
+              <div class="profile-badges">
+                <span class="profile-badge">⭐ RP Score: ${player.rpScore || 1000}</span>
+                <span class="profile-badge">⏱️ ${player.stats?.playtimeFormatted || '0h'}</span>
+                ${player.isBanned ? '<span class="profile-badge banned">🚫 Banned</span>' : ''}
+              </div>
+            </div>
+          </div>
+          
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="stats">📊 Stats</button>
+            <button class="tab-btn" data-tab="inventory">🎒 Inventory</button>
+            <button class="tab-btn" data-tab="assets">🚗 Assets</button>
+          </div>
+          
+          <div id="tab-stats" class="tab-content active">
+            <div class="profile-grid">
+              <div class="profile-card">
+                <h3>💰 Financial Status</h3>
+                <div class="stats-grid">
+                  <div class="stat-item">
+                    <span class="label">Cash</span>
+                    <span class="value money">$${parseFloat(player.stats?.money || 0).toLocaleString()}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="label">Bank</span>
+                    <span class="value money">$${parseFloat(player.stats?.bank || 0).toLocaleString()}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="label">Total Wealth</span>
+                    <span class="value money">$${parseFloat(player.stats?.totalWealth || 0).toLocaleString()}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="label">Total Earned</span>
+                    <span class="value">$${parseFloat(player.stats?.totalEarnings || 0).toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="profile-card">
+                <h3>⏱️ Activity</h3>
+                <div class="stats-grid">
+                  <div class="stat-item">
+                    <span class="label">Playtime</span>
+                    <span class="value">${player.stats?.playtimeFormatted || '0h'}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="label">Last Seen</span>
+                    <span class="value">${player.lastSeen ? ui.timeAgo(player.lastSeen) : 'Unknown'}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="profile-card">
+                <h3>⚔️ Combat Stats</h3>
+                <div class="stats-grid">
+                  <div class="stat-item">
+                    <span class="label">Kills</span>
+                    <span class="value">${player.stats?.kills || 0}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="label">Deaths</span>
+                    <span class="value">${player.stats?.deaths || 0}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="label">K/D Ratio</span>
+                    <span class="value">${player.stats?.kdRatio || 0}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="profile-card">
+                <h3>👷 Job</h3>
+                <div class="stats-grid">
+                  <div class="stat-item">
+                    <span class="label">Job</span>
+                    <span class="value">${player.job?.jobLabel || 'Unemployed'}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="label">Grade</span>
+                    <span class="value">${player.job?.jobGrade || 0}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="label">On Duty</span>
+                    <span class="value">${player.job?.onDuty ? 'Yes' : 'No'}</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="label">Salary</span>
+                    <span class="value">$${parseFloat(player.job?.salary || 0).toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="profile-card">
+              <h3>🏆 Rankings</h3>
+              <div class="stats-grid">
+                <div class="stat-item">
+                  <span class="label">Wealth Rank</span>
+                  <span class="value">#${player.ranks?.money || '-'} <span class="rank-position">${player.ranks?.money || '-'}</span></span>
+                </div>
+                <div class="stat-item">
+                  <span class="label">Playtime Rank</span>
+                  <span class="value">#${player.ranks?.playtime || '-'}</span>
+                </div>
+                <div class="stat-item">
+                  <span class="label">Kills Rank</span>
+                  <span class="value">#${player.ranks?.kills || '-'}</span>
+                </div>
+                <div class="stat-item">
+                  <span class="label">Vehicles Rank</span>
+                  <span class="value">#${player.ranks?.vehicles || '-'}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div id="tab-inventory" class="tab-content">
+            <div class="profile-card">
+              <h3>🎒 Inventory (${player.inventoryCount || 0} items)</h3>
+              <div id="inventory-content">
+                <div class="loading"><div class="spinner"></div></div>
+              </div>
+            </div>
+          </div>
+          
+          <div id="tab-assets" class="tab-content">
+            <div class="profile-card">
+              <h3>🚗 Assets</h3>
+              <div id="assets-content">
+                <div class="loading"><div class="spinner"></div></div>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        container.innerHTML = html;
+        
+        // Initialize tabs
+        initTabs();
+        
+        // Load inventory
+        loadInventory();
+        
+        // Load assets
+        loadAssets();
+        
+      } catch (error) {
+        console.error('Failed to load profile:', error);
+        container.innerHTML = `
+          <div class="not-found">
+            <h2>Error Loading Profile</h2>
+            <p style="color: var(--text-secondary);">${error.message}</p>
+            <a href="/leaderboards" class="btn btn-primary" style="margin-top: var(--spacing-lg);">View Leaderboards</a>
+          </div>
+        `;
+      }
+    }
+    
+    // Initialize tabs
+    function initTabs() {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          btn.classList.add('active');
+          document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+        });
+      });
+    }
+    
+    // Load inventory
+    async function loadInventory() {
+      const container = document.getElementById('inventory-content');
+      
+      try {
+        const data = await api.get(`/players/${playerId}/inventory`);
+        const inventory = data.inventory;
+        
+        if (!inventory.items || inventory.items.length === 0) {
+          container.innerHTML = '<p style="color: var(--text-secondary);">No items in inventory</p>';
+          return;
+        }
+        
+        let html = '<div class="inventory-grid">';
+        inventory.items.forEach(item => {
+          const icon = getItemIcon(item.category);
+          html += `
+            <div class="inventory-item">
+              <span class="icon">${icon}</span>
+              <span class="name">${item.label}</span>
+              <span class="count">x${item.count}</span>
+            </div>
+          `;
+        });
+        html += '</div>';
+        
+        container.innerHTML = html;
+        
+      } catch (error) {
+        container.innerHTML = '<p style="color: var(--text-secondary);">Failed to load inventory</p>';
+      }
+    }
+    
+    // Load assets
+    async function loadAssets() {
+      const container = document.getElementById('assets-content');
+      
+      try {
+        const data = await api.get(`/players/${playerId}/assets`);
+        const assets = data.assets;
+        
+        if (!assets || assets.length === 0) {
+          container.innerHTML = '<p style="color: var(--text-secondary);">No assets owned</p>';
+          return;
+        }
+        
+        let html = '<div class="assets-list">';
+        assets.forEach(asset => {
+          const icon = asset.type === 'VEHICLE' ? '🚗' : asset.type === 'HOUSE' ? '🏠' : '🏢';
+          html += `
+            <div class="asset-item">
+              <div class="info">
+                <span class="icon">${icon}</span>
+                <div>
+                  <div style="font-weight: 500;">${asset.label}</div>
+                  <div style="font-size: 0.75rem; color: var(--text-secondary);">${asset.type}</div>
+                </div>
+              </div>
+              <span class="value">$${parseFloat(asset.value || 0).toLocaleString()}</span>
+            </div>
+          `;
+        });
+        html += '</div>';
+        
+        container.innerHTML = html;
+        
+      } catch (error) {
+        container.innerHTML = '<p style="color: var(--text-secondary);">Failed to load assets</p>';
+      }
+    }
+    
+    // Get item icon based on category
+    function getItemIcon(category) {
+      const icons = {
+        WEAPON: '🔫',
+        FOOD: '🍔',
+        DRINK: '🥤',
+        MEDICAL: '💊',
+        CLOTHING: '👕',
+        VEHICLE: '🚗',
+        KEY: '🔑',
+        DOCUMENT: '📄',
+        OTHER: '📦'
+      };
+      return icons[category] || '📦';
+    }
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', loadProfile);
+  </script>
+</body>
+</html>
+
